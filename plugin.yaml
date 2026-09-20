@@ -1,0 +1,13 @@
+name: claude-usage-autoresume
+version: "0.1.0"
+description: >
+  Detects a genuine Anthropic (Claude Pro/Max OAuth) usage-limit exhaustion
+  on the FINAL retry of a turn, reads the authoritative reset time from
+  Claude's own OAuth usage API, and schedules a one-shot `hermes cron` job
+  that resumes the halted session (`hermes chat --resume <session_id>`)
+  right after the window reopens. Never fires for billing/API-key
+  exhaustion (those need a human to top up) or for other providers.
+author: "claude-usage-autoresume contributors"
+license: MIT
+provides_hooks:
+  - api_request_error
