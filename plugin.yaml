@@ -1,4 +1,4 @@
-name: claude-usage-autoresume
+name: hermes-autoretry-limit
 version: "0.2.0"
 description: >
   Detects a subscription usage-window halt (Claude Pro/Max OAuth, OpenAI Codex
@@ -9,7 +9,7 @@ description: >
   until the turn succeeds. A resume firing while the window is still closed
   re-schedules its own re-check ~55 minutes out, safely inside Hermes's
   one-hour script timeout. Never fires for API-key billing exhaustion.
-author: "claude-usage-autoresume contributors"
+author: "hermes-autoretry-limit contributors"
 license: MIT
 provides_hooks:
   - transform_api_error_classification

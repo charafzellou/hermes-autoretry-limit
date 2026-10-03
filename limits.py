@@ -1,4 +1,4 @@
-"""Provider knowledge for claude-usage-autoresume.
+"""Provider knowledge for hermes-autoretry-limit.
 
 Which providers have subscription usage windows, how to read those windows,
 which window is actually blocking, and when the session can resume.
@@ -167,7 +167,7 @@ def fetch_windows_cached(provider: str) -> List[Window]:
     try:
         windows = fetch_windows(provider)
     except Exception:
-        logger.warning("claude-usage-autoresume: usage lookup for %s failed", provider, exc_info=True)
+        logger.warning("hermes-autoretry-limit: usage lookup for %s failed", provider, exc_info=True)
         windows = []
     _CACHE[provider] = (time.time(), windows)
     return windows

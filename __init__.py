@@ -1,4 +1,4 @@
-"""claude-usage-autoresume — detection half.
+"""hermes-autoretry-limit — detection half.
 
 Two Hermes plugin hooks fire, in this order and in the same process, for every
 failed provider attempt (agent/turn_api_error.py):
@@ -109,10 +109,10 @@ def on_transform_api_error_classification(
             "should_rotate_credential": True,
             "should_fallback": True,
             "message": (f"{halt.provider} subscription usage limit reached — "
-                        f"claude-usage-autoresume will resume this session after {when}."),
+                        f"hermes-autoretry-limit will resume this session after {when}."),
         }
     except Exception:
-        logger.exception("claude-usage-autoresume: transform hook failed (fail-open)")
+        logger.exception("hermes-autoretry-limit: transform hook failed (fail-open)")
         return None
 
 
@@ -131,11 +131,11 @@ def on_api_request_error(
         halt = stashed[1]
         sid = str(session_id or "").strip()
         if not sid:
-            logger.warning("claude-usage-autoresume: no session_id on failure payload, cannot schedule resume")
+            logger.warning("hermes-autoretry-limit: no session_id on failure payload, cannot schedule resume")
             return
         marker = _marker_path(sid)
         if _resume_still_pending(marker, time.time()):
-            logger.debug("claude-usage-autoresume: resume already pending for session %s", sid)
+            logger.debug("hermes-autoretry-limit: resume already pending for session %s", sid)
             return
         resume_at = datetime.fromtimestamp(halt.resume_epoch, tz=timezone.utc)
         job_id = schedule_resume_job(session_id=sid, resume_at=resume_at, provider=halt.provider)
@@ -146,10 +146,10 @@ def on_api_request_error(
             "reset_at": resume_at.isoformat(), "job_id": job_id,
             "scheduled_at": datetime.now(timezone.utc).isoformat(), "platform": platform,
         }), encoding="utf-8")
-        logger.info("claude-usage-autoresume: %s halt (%s) — resume of session %s scheduled at %s (job %s)",
+        logger.info("hermes-autoretry-limit: %s halt (%s) — resume of session %s scheduled at %s (job %s)",
                     halt.provider, halt.source, sid, resume_at.isoformat(), job_id)
     except Exception:
-        logger.exception("claude-usage-autoresume: on_api_request_error failed (fail-open)")
+        logger.exception("hermes-autoretry-limit: on_api_request_error failed (fail-open)")
 
 
 def register(ctx) -> None:

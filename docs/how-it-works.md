@@ -32,7 +32,7 @@ in the same process and thread (`agent/turn_api_error.py`):
    Whatever the callback returns is ignored — Hermes's own
    retry/backoff/fallback logic runs independently of the observer.
 
-`claude-usage-autoresume` registers against both hooks:
+`hermes-autoretry-limit` registers against both hooks:
 `on_transform_api_error_classification()` and `on_api_request_error()` in
 `__init__.py`.
 
@@ -75,7 +75,7 @@ happens. When it accepts, it returns a fail-fast verdict:
 {"reason": "billing", "retryable": False, "should_rotate_credential": True,
  "should_fallback": True,
  "message": "<provider> subscription usage limit reached — "
-            "claude-usage-autoresume will resume this session after HH:MM."}
+            "hermes-autoretry-limit will resume this session after HH:MM."}
 ```
 
 `billing` is deliberate: it is the one built-in reason that (a) is outside
@@ -144,7 +144,7 @@ With a concrete resume time, `schedule.py` does two things:
 
    ```bash
    hermes cron create "<resume_at + 60s>" \
-     --name claude-usage-autoresume-<session>-<fire_epoch> \
+     --name hermes-autoretry-limit-<session>-<fire_epoch> \
      --script autoresume_<session>.py \
      --no-agent --deliver local --failure-deliver local --repeat 1 \
      --interpreter <the plugin's own python>

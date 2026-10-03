@@ -45,18 +45,18 @@ accounts for `$HERMES_HOME` overrides and multi-profile setups.
 
 The repo root **is** the plugin directory, and Hermes derives the plugin's
 lookup key from the directory name — so clone it into a directory named
-exactly `claude-usage-autoresume`:
+exactly `hermes-autoretry-limit`:
 
 ```bash
-git clone https://github.com/<you>/claude-usage-autoresume \
-  "$HERMES_HOME/plugins/claude-usage-autoresume"
+git clone https://github.com/<you>/hermes-autoretry-limit \
+  "$HERMES_HOME/plugins/hermes-autoretry-limit"
 ```
 
 (A symlink to a local clone also works, if you'd rather develop against
 your working copy and have changes picked up without re-cloning:
 
 ```bash
-ln -s "$(pwd)" "$HERMES_HOME/plugins/claude-usage-autoresume"
+ln -s "$(pwd)" "$HERMES_HOME/plugins/hermes-autoretry-limit"
 ```
 
 Note: symlinks may behave differently on Windows depending on your shell —
@@ -65,27 +65,27 @@ Note: symlinks may behave differently on Windows depending on your shell —
 ## Step 3 — Enable it
 
 ```bash
-hermes plugins enable claude-usage-autoresume
+hermes plugins enable hermes-autoretry-limit
 ```
 
 Expected output:
 
 ```
-✓ Plugin claude-usage-autoresume enabled. Takes effect on next session.
+✓ Plugin hermes-autoretry-limit enabled. Takes effect on next session.
 ```
 
 ## Step 4 — Verify it loads cleanly
 
 ```bash
-hermes plugins doctor claude-usage-autoresume
+hermes plugins doctor hermes-autoretry-limit
 ```
 
 Expected output:
 
 ```
 Plugin Doctor:
-<path>\claude-usage-autoresume
-  manifest: claude-usage-autoresume 0.2.0 (standalone)
+<path>\hermes-autoretry-limit
+  manifest: hermes-autoretry-limit 0.2.0 (standalone)
   OK: runtime discovery, manifest parsing, import, and registration passed
   registrations: 0 tool(s), 2 hook(s)
 ```
@@ -105,13 +105,13 @@ hermes plugins list --plain --no-bundled
 You should see a line like:
 
 ```
-enabled      user     0.2.0    claude-usage-autoresume
+enabled      user     0.2.0    hermes-autoretry-limit
 ```
 
 ## Step 6 — Run the unit tests (optional but recommended)
 
 ```bash
-cd claude-usage-autoresume
+cd hermes-autoretry-limit
 uvx pytest tests -q -p no:cacheprovider
 ```
 
@@ -145,7 +145,7 @@ it should log something like this to Hermes's log (or wherever your
 platform surfaces plugin log output):
 
 ```
-claude-usage-autoresume: scheduled resume of session <id> at <reset_at> (job <job_id>)
+hermes-autoretry-limit: scheduled resume of session <id> at <reset_at> (job <job_id>)
 ```
 
 You can confirm a resume got queued at any time with:
@@ -157,13 +157,13 @@ hermes cron list
 and inspect the dedupe marker at:
 
 ```
-$HERMES_HOME/plugins/claude-usage-autoresume/state/<session_id>.json
+$HERMES_HOME/plugins/hermes-autoretry-limit/state/<session_id>.json
 ```
 
 ## Uninstalling
 
 ```bash
-hermes plugins disable claude-usage-autoresume
+hermes plugins disable hermes-autoretry-limit
 ```
 
 or delete the plugin directory outright. If you have any resume jobs still

@@ -42,7 +42,7 @@ nothing in it is Windows-specific).
   ~55 minutes out and exits — every run stays seconds long, safely inside
   Hermes's one-hour cron script timeout, so no resume is ever killed
   mid-turn.
-- To stop the loop entirely: `hermes plugins disable claude-usage-autoresume`
+- To stop the loop entirely: `hermes plugins disable hermes-autoretry-limit`
   and clear leftovers with `hermes cron list` / `hermes cron remove <job_id>`.
 
 ## What "automatic resume" actually means
@@ -62,13 +62,13 @@ conversation, not your original window unfreezing.
 ```bash
 # 1. Copy (or symlink) this directory into your Hermes plugins folder.
 #    Find your Hermes home with: hermes doctor | grep -i home
-cp -r claude-usage-autoresume "$HERMES_HOME/plugins/"
+cp -r hermes-autoretry-limit "$HERMES_HOME/plugins/"
 
 # 2. Enable it
-hermes plugins enable claude-usage-autoresume
+hermes plugins enable hermes-autoretry-limit
 
 # 3. Confirm it loads cleanly
-hermes plugins doctor claude-usage-autoresume
+hermes plugins doctor hermes-autoretry-limit
 
 # 4. Make sure the cron scheduler is actually running, or nothing will fire
 hermes cron status
@@ -100,7 +100,7 @@ won't retroactively help a session that's already running.
 ## Disabling
 
 ```bash
-hermes plugins disable claude-usage-autoresume
+hermes plugins disable hermes-autoretry-limit
 ```
 
 or delete the plugin directory entirely. Leftover scheduled resume jobs (if

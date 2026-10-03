@@ -7,11 +7,11 @@ Check, in order:
 1. **Is the plugin actually enabled?**
 
    ```bash
-   hermes plugins list --plain --no-bundled | grep claude-usage-autoresume
+   hermes plugins list --plain --no-bundled | grep hermes-autoretry-limit
    ```
 
    Should say `enabled`. If it says `not enabled`, run
-   `hermes plugins enable claude-usage-autoresume` and start a **new**
+   `hermes plugins enable hermes-autoretry-limit` and start a **new**
    session — plugins only load at session start, so an already-running
    session won't pick up a just-enabled plugin.
 
@@ -33,7 +33,7 @@ Check, in order:
 4. **Check the logs directly.** The plugin logs under the logger name
    `plugin.claude_usage_autoresume`. Depending on your Hermes logging
    config, look in Hermes's log output for lines starting with
-   `claude-usage-autoresume:`.
+   `hermes-autoretry-limit:`.
 
 ## "It scheduled a job but it never fired"
 
@@ -61,7 +61,7 @@ expected Hermes cron behavior, not a bug in this plugin.
 hermes cron list
 ```
 
-Look for a job named `claude-usage-autoresume-<session-id-prefix>`.
+Look for a job named `hermes-autoretry-limit-<session-id-prefix>`.
 
 ## "How do I cancel a scheduled resume?"
 
@@ -71,7 +71,7 @@ hermes cron remove <job_id>
 ```
 
 Also delete the matching marker under
-`$HERMES_HOME/plugins/claude-usage-autoresume/state/<session_id>.json` if
+`$HERMES_HOME/plugins/hermes-autoretry-limit/state/<session_id>.json` if
 you don't want the plugin to consider that session "already handled" — but
 note this only matters if you expect to hit the same limit again for the
 same session; there's no harm leaving a stale marker around.
@@ -137,7 +137,7 @@ warning should only appear if you're modifying the plugin.
 You can dry-run the scheduling half directly:
 
 ```bash
-cd "$HERMES_HOME/plugins/claude-usage-autoresume"
+cd "$HERMES_HOME/plugins/hermes-autoretry-limit"
 python -c "
 import sys; sys.path.insert(0, '.')
 from datetime import datetime, timedelta, timezone
@@ -148,7 +148,7 @@ print(schedule_resume_job(session_id='test-session-123', resume_at=resume_at))
 hermes cron list   # should show the scheduled job
 hermes cron remove <job_id>   # clean up afterwards
 rm "$HERMES_HOME/scripts/autoresume_test-session-123.py"
-rm "$HERMES_HOME/plugins/claude-usage-autoresume/state/test-session-123.json"
+rm "$HERMES_HOME/plugins/hermes-autoretry-limit/state/test-session-123.json"
 ```
 
 This exercises the real `hermes cron create` path without needing to

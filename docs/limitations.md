@@ -69,7 +69,7 @@ plugin costs one failed request per window plus one quota-check per
 55-minute hop, forever. To stop it:
 
 ```bash
-hermes plugins disable claude-usage-autoresume
+hermes plugins disable hermes-autoretry-limit
 hermes cron list        # find leftover jobs
 hermes cron remove <job_id>
 ```

@@ -3,10 +3,10 @@
 ## File map
 
 This repository **is** the plugin directory — the repo root is what you
-clone into `$HERMES_HOME/plugins/claude-usage-autoresume/`.
+clone into `$HERMES_HOME/plugins/hermes-autoretry-limit/`.
 
 ```
-claude-usage-autoresume/   (repo root == plugin dir)
+hermes-autoretry-limit/   (repo root == plugin dir)
 ├── __init__.py            Hooks: registers transform_api_error_classification
 │                           (fail-fast verdict) + api_request_error (schedules
 │                           the resume), dedupes via state/ markers.
@@ -126,7 +126,7 @@ upgrades without needing to track Hermes's internal refactors.
 ## Plugin manifest (`plugin.yaml`)
 
 ```yaml
-name: claude-usage-autoresume
+name: hermes-autoretry-limit
 version: "0.2.0"
 description: >
   ...
@@ -137,7 +137,7 @@ provides_hooks:
 ```
 
 `provides_hooks` is what Hermes's plugin doctor
-(`hermes plugins doctor claude-usage-autoresume`) checks against the hooks
+(`hermes plugins doctor hermes-autoretry-limit`) checks against the hooks
 your `register()` function actually registers, to catch a manifest that's
 drifted out of sync with the code.
 

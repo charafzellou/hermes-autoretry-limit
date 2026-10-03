@@ -16,7 +16,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(os.environ["LOCALAPPDATA"]) / "hermes" / "hermes-agent"))
-root = Path(os.environ["LOCALAPPDATA"]) / "hermes" / "plugins" / "claude-usage-autoresume"
+root = Path(os.environ["LOCALAPPDATA"]) / "hermes" / "plugins" / "hermes-autoretry-limit"
 spec = importlib.util.spec_from_file_location("p", root / "__init__.py",
                                               submodule_search_locations=[str(root)])
 m = importlib.util.module_from_spec(spec)
