@@ -85,9 +85,9 @@ Expected output:
 ```
 Plugin Doctor:
 <path>\claude-usage-autoresume
-  manifest: claude-usage-autoresume 0.1.0 (standalone)
+  manifest: claude-usage-autoresume 0.2.0 (standalone)
   OK: runtime discovery, manifest parsing, import, and registration passed
-  registrations: 0 tool(s), 1 hook(s)
+  registrations: 0 tool(s), 2 hook(s)
 ```
 
 If you instead see a `WARN: registration adds hook '...' not listed in
@@ -105,19 +105,30 @@ hermes plugins list --plain --no-bundled
 You should see a line like:
 
 ```
-enabled      user     0.1.0    claude-usage-autoresume
+enabled      user     0.2.0    claude-usage-autoresume
 ```
 
 ## Step 6 — Run the unit tests (optional but recommended)
 
 ```bash
-cd "$HERMES_HOME/plugins/claude-usage-autoresume/tests"
-python test_detect.py
+cd claude-usage-autoresume
+uvx pytest tests -q -p no:cacheprovider
 ```
 
-Expected output: six `ok:` lines followed by `OK`. These tests don't touch
-the network or the filesystem outside your working directory — they're
-pure-function tests of the classification logic.
+Expected output: `32 passed`. These tests don't touch the network or the
+filesystem outside a temp directory — pure-function tests of the
+classification logic, the hook wiring, and the generated cron script.
+
+Optionally, verify against the real Hermes classifier and your live
+provider accounts (read-only):
+
+```bash
+"$LOCALAPPDATA/hermes/hermes-agent/venv/Scripts/python.exe" tests/hermes_integration_check.py
+# expected: four case lines + INTEGRATION OK
+
+"$LOCALAPPDATA/hermes/hermes-agent/venv/Scripts/python.exe" tests/probe_usage.py anthropic openai-codex zai
+# expected: each provider's usage windows and the blocking reset time
+```
 
 ## Step 7 — Start using it
 

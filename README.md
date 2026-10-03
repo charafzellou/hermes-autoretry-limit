@@ -1,26 +1,49 @@
-# claude-usage-autoresume
+# hermes-autoretry-limit
 
 A [Hermes Agent](https://github.com/NousResearch/hermes-agent) plugin that
-auto-resumes your Hermes session after a Claude Pro/Max usage limit
-("5-hour limit reached") clears with no manual re-prompting required.
+auto-resumes your Hermes session after a subscription usage limit clears —
+Claude Pro/Max (Anthropic OAuth), OpenAI Codex (ChatGPT plan), or Z.AI GLM
+Coding Plan — with no manual re-prompting required.
 
-If you drive Hermes with a Claude Pro/Max subscription (Anthropic OAuth,
-not an API key), you've hit this: mid-session, Claude says you're out of
-usage for the next few hours, and your Hermes session just... stops. You
-have to remember to come back and manually resume it once the window
-resets.
+If you drive Hermes with a provider subscription, you've hit this: mid-session,
+the provider says you're out of usage (5-hour or weekly window), and your
+Hermes session just... stops — after burning up to 3 retries x 600 s of
+"Rate limited. Waiting 600s" on a window that is closed for hours. You have
+to remember to come back and manually resume it once the window resets.
 
-This plugin watches for exactly that failure, asks Claude's own account API
-when your usage window actually reopens, and schedules Hermes to resume the
-session itself at that moment via Hermes's built-in cron scheduler.
+This plugin watches for exactly that failure, stops Hermes immediately
+(no pointless retries), asks the provider's own usage API when your blocking
+window actually reopens, and schedules Hermes to resume the session itself at
+that moment via Hermes's built-in cron scheduler — repeating every window
+until the turn succeeds.
 
 ## Status
 
-Working, dog-fooded, but young.
+Working, dog-fooded, but young. v0.2.0 adds multi-provider support (Anthropic,
+OpenAI Codex, Z.AI GLM Coding Plan) and the infinite-resume chain.
 
 Built and tested on Windows against a
 current Hermes Agent install; not yet tested on macOS/Linux (should work
 nothing in it is Windows-specific).
+
+## Retry behaviour
+
+- On a confirmed usage-window halt, the plugin makes Hermes stop after the
+  first failed attempt — no 3 x 600 s retry loop. Credential rotation and
+  fallback providers still get their chance first.
+- The resume is scheduled for the **blocking** window: the latest reset among
+  your exhausted windows. If the weekly window is full, waiting for the 5-hour
+  reset would just fail again, so the weekly reset wins.
+- The resumed session loads the plugin too; if it hits the limit again, the
+  next resume is scheduled automatically. This repeats every window until the
+  turn succeeds.
+- If a scheduled resume fires while the window is still closed (unknown reset
+  time, clock drift, provider re-cap), it re-schedules its own re-check
+  ~55 minutes out and exits — every run stays seconds long, safely inside
+  Hermes's one-hour cron script timeout, so no resume is ever killed
+  mid-turn.
+- To stop the loop entirely: `hermes plugins disable claude-usage-autoresume`
+  and clear leftovers with `hermes cron list` / `hermes cron remove <job_id>`.
 
 ## What "automatic resume" actually means
 
@@ -61,9 +84,15 @@ won't retroactively help a session that's already running.
 ## Requirements
 
 - Hermes Agent with plugin support (`hermes plugins` command available).
-- Anthropic OAuth login (Claude Pro/Max subscription via `hermes auth add
-anthropic`) this plugin is Anthropic-specific by design (see
-  [`docs/limitations.md`](docs/limitations.md)).
+- One of the supported subscription logins:
+  - Claude Pro/Max: `hermes auth add anthropic` (OAuth, not an API key).
+  - OpenAI Codex / ChatGPT plan: Codex OAuth (the same login Hermes's `/usage`
+    command reads).
+  - Z.AI GLM Coding Plan: `GLM_API_KEY` / `ZAI_API_KEY` (or
+    `hermes auth add zai`), using the dedicated Coding Plan endpoint
+    (`https://api.z.ai/api/coding/paas/v4`; China:
+    `https://open.bigmodel.cn/api/coding/paas/v4`). Quota is read from
+    `/api/monitor/usage/quota/limit` on the same region's origin.
 - Hermes's cron scheduler actually running (`hermes gateway install` or
   `hermes gateway run`) otherwise scheduled resume jobs are queued but
   never fire.
